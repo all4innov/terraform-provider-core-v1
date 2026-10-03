@@ -94,6 +94,9 @@ func WorkflowStatusSummaryDataSourceSchema(ctx context.Context) schema.Schema {
 							},
 							Computed: true,
 						},
+						"passed": schema.BoolAttribute{
+							Computed: true,
+						},
 						"root_workflow": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"group": schema.StringAttribute{
@@ -321,6 +324,24 @@ func (t WorkflowStatusSummaryType) ValueFromObject(ctx context.Context, in baset
 			fmt.Sprintf(`parent expected to be basetypes.ObjectValue, was: %T`, parentAttribute))
 	}
 
+	passedAttribute, ok := attributes["passed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`passed is missing from object`)
+
+		return nil, diags
+	}
+
+	passedVal, ok := passedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`passed expected to be basetypes.BoolValue, was: %T`, passedAttribute))
+	}
+
 	rootWorkflowAttribute, ok := attributes["root_workflow"]
 
 	if !ok {
@@ -406,6 +427,7 @@ func (t WorkflowStatusSummaryType) ValueFromObject(ctx context.Context, in baset
 		Name:         nameVal,
 		Namespace:    namespaceVal,
 		Parent:       parentVal,
+		Passed:       passedVal,
 		RootWorkflow: rootWorkflowVal,
 		State:        stateVal,
 		Username:     usernameVal,
@@ -621,6 +643,24 @@ func NewWorkflowStatusSummaryValue(attributeTypes map[string]attr.Type, attribut
 			fmt.Sprintf(`parent expected to be basetypes.ObjectValue, was: %T`, parentAttribute))
 	}
 
+	passedAttribute, ok := attributes["passed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`passed is missing from object`)
+
+		return NewWorkflowStatusSummaryValueUnknown(), diags
+	}
+
+	passedVal, ok := passedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`passed expected to be basetypes.BoolValue, was: %T`, passedAttribute))
+	}
+
 	rootWorkflowAttribute, ok := attributes["root_workflow"]
 
 	if !ok {
@@ -706,6 +746,7 @@ func NewWorkflowStatusSummaryValue(attributeTypes map[string]attr.Type, attribut
 		Name:         nameVal,
 		Namespace:    namespaceVal,
 		Parent:       parentVal,
+		Passed:       passedVal,
 		RootWorkflow: rootWorkflowVal,
 		State:        stateVal,
 		Username:     usernameVal,
@@ -790,6 +831,7 @@ type WorkflowStatusSummaryValue struct {
 	Name         basetypes.StringValue `tfsdk:"name"`
 	Namespace    basetypes.StringValue `tfsdk:"namespace"`
 	Parent       basetypes.ObjectValue `tfsdk:"parent"`
+	Passed       basetypes.BoolValue   `tfsdk:"passed"`
 	RootWorkflow basetypes.ObjectValue `tfsdk:"root_workflow"`
 	State        basetypes.StringValue `tfsdk:"state"`
 	Username     basetypes.StringValue `tfsdk:"username"`
@@ -798,7 +840,7 @@ type WorkflowStatusSummaryValue struct {
 }
 
 func (v WorkflowStatusSummaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 12)
+	attrTypes := make(map[string]tftypes.Type, 13)
 
 	var val tftypes.Value
 	var err error
@@ -813,6 +855,7 @@ func (v WorkflowStatusSummaryValue) ToTerraformValue(ctx context.Context) (tftyp
 	attrTypes["parent"] = basetypes.ObjectType{
 		AttrTypes: ParentValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["passed"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["root_workflow"] = basetypes.ObjectType{
 		AttrTypes: RootWorkflowValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -824,7 +867,7 @@ func (v WorkflowStatusSummaryValue) ToTerraformValue(ctx context.Context) (tftyp
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 12)
+		vals := make(map[string]tftypes.Value, 13)
 
 		val, err = v.CreationTime.ToTerraformValue(ctx)
 
@@ -889,6 +932,14 @@ func (v WorkflowStatusSummaryValue) ToTerraformValue(ctx context.Context) (tftyp
 		}
 
 		vals["parent"] = val
+
+		val, err = v.Passed.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["passed"] = val
 
 		val, err = v.RootWorkflow.ToTerraformValue(ctx)
 
@@ -1004,6 +1055,7 @@ func (v WorkflowStatusSummaryValue) ToObjectValue(ctx context.Context) (basetype
 		"parent": basetypes.ObjectType{
 			AttrTypes: ParentValue{}.AttributeTypes(ctx),
 		},
+		"passed": basetypes.BoolType{},
 		"root_workflow": basetypes.ObjectType{
 			AttrTypes: RootWorkflowValue{}.AttributeTypes(ctx),
 		},
@@ -1031,6 +1083,7 @@ func (v WorkflowStatusSummaryValue) ToObjectValue(ctx context.Context) (basetype
 			"name":          v.Name,
 			"namespace":     v.Namespace,
 			"parent":        parent,
+			"passed":        v.Passed,
 			"root_workflow": rootWorkflow,
 			"state":         v.State,
 			"username":      v.Username,
@@ -1087,6 +1140,10 @@ func (v WorkflowStatusSummaryValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Passed.Equal(other.Passed) {
+		return false
+	}
+
 	if !v.RootWorkflow.Equal(other.RootWorkflow) {
 		return false
 	}
@@ -1126,6 +1183,7 @@ func (v WorkflowStatusSummaryValue) AttributeTypes(ctx context.Context) map[stri
 		"parent": basetypes.ObjectType{
 			AttrTypes: ParentValue{}.AttributeTypes(ctx),
 		},
+		"passed": basetypes.BoolType{},
 		"root_workflow": basetypes.ObjectType{
 			AttrTypes: RootWorkflowValue{}.AttributeTypes(ctx),
 		},

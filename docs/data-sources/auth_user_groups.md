@@ -21,10 +21,8 @@ description: |-
 are returned, rather than just the role names.
 - `full_users` (Boolean) If true, the full definitions of the users which are members of the group
 are returned, rather than just the user names.
-- `fullroles` (Boolean) Deprecated: If true, the full definitions of the roles associated with the group
-are returned, rather than just the role names.  Use fullUsers instead.  Ignored if fullUsers present.
-- `fullusers` (Boolean) Deprecated: If true, the full definitions of the users which are members of the group
-are returned, rather than just the user names.  Use fullRoles instead. Ignored if fullRoles present.
+- `fullroles` (Boolean) Deprecated: use "full_roles" instead, which takes precedence when both are set. If true, each group holds the full definitions of its associated roles rather than just the role names.
+- `fullusers` (Boolean) Deprecated: use "full_users" instead, which takes precedence when both are set. If true, each group holds the full definitions of its members rather than just the user names.
 
 ### Read-Only
 
@@ -53,6 +51,10 @@ simple "rolename", without a colon or a namespace.
 
 Read-Only:
 
+- `core_access_items` (List of String) Core items to which this role gives access; arbitrary things/actions that do not match the "resource" or "table" paradigm.
+Each item must have a resource/subResource/verb structure, where /subResource is optional (depends on the resource).
+The leading or trailing part part may be wildcarded with '\*'.  A wildcard is recursive; i.e. if a subResource is a wildcard, the verb is wildcarded.
+A simple '\*' provides access to all of these resources or items.
 - `description` (String)
 - `name` (String)
 - `namespace` (String)
@@ -66,7 +68,7 @@ Read-Only:
 Read-Only:
 
 - `api_groups` (List of String) The API groups for the resources controlled by the rule.
-An API group consists of an apiGroup and a version, e.g. "apigroup/version".
+Accepted forms: "*" (all groups), "group" (all versions), "group/*" (all versions), "group/version".
 The API group can be a wildcard ("*"), in which case it will match any API group.
 In addition, the version can be a wildcard.
 - `permissions` (String) Permissions for resources specified by the rule.

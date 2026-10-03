@@ -22,8 +22,12 @@ description: |-
 
 ### Optional
 
+- `draft` (Boolean) Indicates that changes are not ready yet.
+- `merge_request_id` (Number) ID of the merge request.
+
+### Read-Only
+
 - `id` (Number) Unique identifier for the merge request.
-- `merge_request_id` (Number) ID of the merge request to get.
 
 <a id="nestedatt--crs"></a>
 ### Nested Schema for `crs`
@@ -76,11 +80,108 @@ Optional:
 
 Optional:
 
+- `apply` (Attributes) (see [below for nested schema](#nestedatt--crs--type--apply))
+- `bulk_patch` (Attributes) (see [below for nested schema](#nestedatt--crs--type--bulk_patch))
 - `create` (Attributes) (see [below for nested schema](#nestedatt--crs--type--create))
 - `delete` (Attributes) (see [below for nested schema](#nestedatt--crs--type--delete))
 - `modify` (Attributes) (see [below for nested schema](#nestedatt--crs--type--modify))
 - `patch` (Attributes) (see [below for nested schema](#nestedatt--crs--type--patch))
 - `replace` (Attributes) (see [below for nested schema](#nestedatt--crs--type--replace))
+- `update` (Attributes) (see [below for nested schema](#nestedatt--crs--type--update))
+
+<a id="nestedatt--crs--type--apply"></a>
+### Nested Schema for `crs.type.apply`
+
+Optional:
+
+- `value` (Attributes) (see [below for nested schema](#nestedatt--crs--type--apply--value))
+
+<a id="nestedatt--crs--type--apply--value"></a>
+### Nested Schema for `crs.type.apply.value`
+
+Optional:
+
+- `api_version` (String)
+- `kind` (String)
+- `metadata` (Attributes) (see [below for nested schema](#nestedatt--crs--type--apply--value--metadata))
+- `spec` (Attributes) (see [below for nested schema](#nestedatt--crs--type--apply--value--spec))
+
+<a id="nestedatt--crs--type--apply--value--metadata"></a>
+### Nested Schema for `crs.type.apply.value.metadata`
+
+Required:
+
+- `name` (String)
+
+Optional:
+
+- `annotations` (Map of String)
+- `labels` (Map of String)
+- `namespace` (String)
+
+
+<a id="nestedatt--crs--type--apply--value--spec"></a>
+### Nested Schema for `crs.type.apply.value.spec`
+
+
+
+
+<a id="nestedatt--crs--type--bulk_patch"></a>
+### Nested Schema for `crs.type.bulk_patch`
+
+Required:
+
+- `gvk` (Attributes) (see [below for nested schema](#nestedatt--crs--type--bulk_patch--gvk))
+- `ns_names` (Attributes List) (see [below for nested schema](#nestedatt--crs--type--bulk_patch--ns_names))
+- `patch_ops` (Attributes List) (see [below for nested schema](#nestedatt--crs--type--bulk_patch--patch_ops))
+
+<a id="nestedatt--crs--type--bulk_patch--gvk"></a>
+### Nested Schema for `crs.type.bulk_patch.gvk`
+
+Optional:
+
+- `group` (String) Name of the API group
+- `kind` (String) The Kind of the resource
+- `version` (String) Version of the API group
+
+
+<a id="nestedatt--crs--type--bulk_patch--ns_names"></a>
+### Nested Schema for `crs.type.bulk_patch.ns_names`
+
+Optional:
+
+- `name` (String)
+- `namespace` (String)
+
+
+<a id="nestedatt--crs--type--bulk_patch--patch_ops"></a>
+### Nested Schema for `crs.type.bulk_patch.patch_ops`
+
+Required:
+
+- `op` (String) The type of operation this patch should perform.
+- `path` (String) The path to the field within the target JSON object
+that should be patched according to the "op" field.
+
+Optional:
+
+- `from` (String) Only applies to a "move" operation, and is the path to the field/value within
+the target JSON object that should be moved to the location specified by the "path"
+field.
+- `value` (Attributes) This field would be set to the value which the user intends to put in the
+field referenced by the "path" field.  The type of the value should match
+the type of the field as indicated by the schema of the resource being
+patched. (see [below for nested schema](#nestedatt--crs--type--bulk_patch--patch_ops--value))
+- `xpermissive` (Boolean) For an "add" operation, an already-present field referenced by the "path" will
+result in an error unless this field is true.  Similarly for a non-existent
+target field of a "remove" operation.
+- `xuiannotation` (String) Metadata maintained in support of the EDA UI.  External use not recommended.
+
+<a id="nestedatt--crs--type--bulk_patch--patch_ops--value"></a>
+### Nested Schema for `crs.type.bulk_patch.patch_ops.value`
+
+
+
 
 <a id="nestedatt--crs--type--create"></a>
 ### Nested Schema for `crs.type.create`
@@ -205,6 +306,7 @@ patched. (see [below for nested schema](#nestedatt--crs--type--patch--patch_ops-
 - `xpermissive` (Boolean) For an "add" operation, an already-present field referenced by the "path" will
 result in an error unless this field is true.  Similarly for a non-existent
 target field of a "remove" operation.
+- `xuiannotation` (String) Metadata maintained in support of the EDA UI.  External use not recommended.
 
 <a id="nestedatt--crs--type--patch--patch_ops--value"></a>
 ### Nested Schema for `crs.type.patch.patch_ops.value`
@@ -265,3 +367,40 @@ Optional:
 
 <a id="nestedatt--crs--type--replace--value--spec"></a>
 ### Nested Schema for `crs.type.replace.value.spec`
+
+
+
+
+<a id="nestedatt--crs--type--update"></a>
+### Nested Schema for `crs.type.update`
+
+Optional:
+
+- `value` (Attributes) (see [below for nested schema](#nestedatt--crs--type--update--value))
+
+<a id="nestedatt--crs--type--update--value"></a>
+### Nested Schema for `crs.type.update.value`
+
+Optional:
+
+- `api_version` (String)
+- `kind` (String)
+- `metadata` (Attributes) (see [below for nested schema](#nestedatt--crs--type--update--value--metadata))
+- `spec` (Attributes) (see [below for nested schema](#nestedatt--crs--type--update--value--spec))
+
+<a id="nestedatt--crs--type--update--value--metadata"></a>
+### Nested Schema for `crs.type.update.value.metadata`
+
+Required:
+
+- `name` (String)
+
+Optional:
+
+- `annotations` (Map of String)
+- `labels` (Map of String)
+- `namespace` (String)
+
+
+<a id="nestedatt--crs--type--update--value--spec"></a>
+### Nested Schema for `crs.type.update.value.spec`

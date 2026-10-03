@@ -68,7 +68,7 @@ func TopologyGroupingInstanceDataSourceSchema(ctx context.Context) schema.Schema
 						},
 					},
 				},
-				Optional: true,
+				Computed: true,
 			},
 			"status": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{

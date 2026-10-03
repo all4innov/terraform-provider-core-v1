@@ -18,6 +18,12 @@ import (
 func ClusterAuthRoleDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"core_access_items": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Computed:            true,
+				Description:         "Core items to which this role gives access; arbitrary things/actions that do not match the \"resource\" or \"table\" paradigm.\nEach item must have a resource/subResource/verb structure, where /subResource is optional (depends on the resource).\nThe leading or trailing part part may be wildcarded with '\\*'.  A wildcard is recursive; i.e. if a subResource is a wildcard, the verb is wildcarded.\nA simple '\\*' provides access to all of these resources or items.",
+				MarkdownDescription: "Core items to which this role gives access; arbitrary things/actions that do not match the \"resource\" or \"table\" paradigm.\nEach item must have a resource/subResource/verb structure, where /subResource is optional (depends on the resource).\nThe leading or trailing part part may be wildcarded with '\\*'.  A wildcard is recursive; i.e. if a subResource is a wildcard, the verb is wildcarded.\nA simple '\\*' provides access to all of these resources or items.",
+			},
 			"description": schema.StringAttribute{
 				Computed: true,
 			},
@@ -35,8 +41,8 @@ func ClusterAuthRoleDataSourceSchema(ctx context.Context) schema.Schema {
 						"api_groups": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "The API groups for the resources controlled by the rule.\nAn API group consists of an apiGroup and a version, e.g. \"apigroup/version\".\nThe API group can be a wildcard (\"*\"), in which case it will match any API group.\nIn addition, the version can be a wildcard.",
-							MarkdownDescription: "The API groups for the resources controlled by the rule.\nAn API group consists of an apiGroup and a version, e.g. \"apigroup/version\".\nThe API group can be a wildcard (\"*\"), in which case it will match any API group.\nIn addition, the version can be a wildcard.",
+							Description:         "The API groups for the resources controlled by the rule.\nAccepted forms: \"*\" (all groups), \"group\" (all versions), \"group/*\" (all versions), \"group/version\".\nThe API group can be a wildcard (\"*\"), in which case it will match any API group.\nIn addition, the version can be a wildcard.",
+							MarkdownDescription: "The API groups for the resources controlled by the rule.\nAccepted forms: \"*\" (all groups), \"group\" (all versions), \"group/*\" (all versions), \"group/version\".\nThe API group can be a wildcard (\"*\"), in which case it will match any API group.\nIn addition, the version can be a wildcard.",
 						},
 						"permissions": schema.StringAttribute{
 							Computed:            true,
@@ -113,12 +119,13 @@ func ClusterAuthRoleDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type ClusterAuthRoleModel struct {
-	Description   types.String `tfsdk:"description"`
-	Name          types.String `tfsdk:"name"`
-	Namespace     types.String `tfsdk:"namespace"`
-	ResourceRules types.List   `tfsdk:"resource_rules"`
-	TableRules    types.List   `tfsdk:"table_rules"`
-	UrlRules      types.List   `tfsdk:"url_rules"`
+	CoreAccessItems types.List   `tfsdk:"core_access_items"`
+	Description     types.String `tfsdk:"description"`
+	Name            types.String `tfsdk:"name"`
+	Namespace       types.String `tfsdk:"namespace"`
+	ResourceRules   types.List   `tfsdk:"resource_rules"`
+	TableRules      types.List   `tfsdk:"table_rules"`
+	UrlRules        types.List   `tfsdk:"url_rules"`
 }
 
 var _ basetypes.ObjectTypable = ResourceRulesType{}

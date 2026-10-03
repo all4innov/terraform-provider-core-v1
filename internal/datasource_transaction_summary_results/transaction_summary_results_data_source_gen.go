@@ -23,8 +23,8 @@ func TransactionSummaryResultsDataSourceSchema(ctx context.Context) schema.Schem
 					Attributes: map[string]schema.Attribute{
 						"bundled_transaction_id": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier.",
-							MarkdownDescription: "If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier.",
+							Description:         "If present, indicates that the execution of this transaction was bundled into the transaction with this identifier.",
+							MarkdownDescription: "If present, indicates that the execution of this transaction was bundled into the transaction with this identifier.",
 						},
 						"commit_hash": schema.StringAttribute{
 							Computed:            true,
@@ -61,6 +61,16 @@ func TransactionSummaryResultsDataSourceSchema(ctx context.Context) schema.Schem
 							Computed:            true,
 							Description:         "The time that the transaction completed.",
 							MarkdownDescription: "The time that the transaction completed.",
+						},
+						"pipeline_runner_id": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "If present, indicates the id of the pipeline runner associated with this transaction.",
+							MarkdownDescription: "If present, indicates the id of the pipeline runner associated with this transaction.",
+						},
+						"pipeline_runner_name": schema.StringAttribute{
+							Computed:            true,
+							Description:         "If present, indicates the name of the pipeline runner associated with this transaction.",
+							MarkdownDescription: "If present, indicates the name of the pipeline runner associated with this transaction.",
 						},
 						"state": schema.StringAttribute{
 							Computed:            true,
@@ -278,6 +288,42 @@ func (t ResultsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`last_change_timestamp expected to be basetypes.StringValue, was: %T`, lastChangeTimestampAttribute))
 	}
 
+	pipelineRunnerIdAttribute, ok := attributes["pipeline_runner_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`pipeline_runner_id is missing from object`)
+
+		return nil, diags
+	}
+
+	pipelineRunnerIdVal, ok := pipelineRunnerIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`pipeline_runner_id expected to be basetypes.Int64Value, was: %T`, pipelineRunnerIdAttribute))
+	}
+
+	pipelineRunnerNameAttribute, ok := attributes["pipeline_runner_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`pipeline_runner_name is missing from object`)
+
+		return nil, diags
+	}
+
+	pipelineRunnerNameVal, ok := pipelineRunnerNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`pipeline_runner_name expected to be basetypes.StringValue, was: %T`, pipelineRunnerNameAttribute))
+	}
+
 	stateAttribute, ok := attributes["state"]
 
 	if !ok {
@@ -345,6 +391,8 @@ func (t ResultsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		DryRun:               dryRunVal,
 		Id:                   idVal,
 		LastChangeTimestamp:  lastChangeTimestampVal,
+		PipelineRunnerId:     pipelineRunnerIdVal,
+		PipelineRunnerName:   pipelineRunnerNameVal,
 		State:                stateVal,
 		Success:              successVal,
 		Username:             usernameVal,
@@ -559,6 +607,42 @@ func NewResultsValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`last_change_timestamp expected to be basetypes.StringValue, was: %T`, lastChangeTimestampAttribute))
 	}
 
+	pipelineRunnerIdAttribute, ok := attributes["pipeline_runner_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`pipeline_runner_id is missing from object`)
+
+		return NewResultsValueUnknown(), diags
+	}
+
+	pipelineRunnerIdVal, ok := pipelineRunnerIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`pipeline_runner_id expected to be basetypes.Int64Value, was: %T`, pipelineRunnerIdAttribute))
+	}
+
+	pipelineRunnerNameAttribute, ok := attributes["pipeline_runner_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`pipeline_runner_name is missing from object`)
+
+		return NewResultsValueUnknown(), diags
+	}
+
+	pipelineRunnerNameVal, ok := pipelineRunnerNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`pipeline_runner_name expected to be basetypes.StringValue, was: %T`, pipelineRunnerNameAttribute))
+	}
+
 	stateAttribute, ok := attributes["state"]
 
 	if !ok {
@@ -626,6 +710,8 @@ func NewResultsValue(attributeTypes map[string]attr.Type, attributes map[string]
 		DryRun:               dryRunVal,
 		Id:                   idVal,
 		LastChangeTimestamp:  lastChangeTimestampVal,
+		PipelineRunnerId:     pipelineRunnerIdVal,
+		PipelineRunnerName:   pipelineRunnerNameVal,
 		State:                stateVal,
 		Success:              successVal,
 		Username:             usernameVal,
@@ -709,6 +795,8 @@ type ResultsValue struct {
 	DryRun               basetypes.BoolValue   `tfsdk:"dry_run"`
 	Id                   basetypes.Int64Value  `tfsdk:"id"`
 	LastChangeTimestamp  basetypes.StringValue `tfsdk:"last_change_timestamp"`
+	PipelineRunnerId     basetypes.Int64Value  `tfsdk:"pipeline_runner_id"`
+	PipelineRunnerName   basetypes.StringValue `tfsdk:"pipeline_runner_name"`
 	State                basetypes.StringValue `tfsdk:"state"`
 	Success              basetypes.BoolValue   `tfsdk:"success"`
 	Username             basetypes.StringValue `tfsdk:"username"`
@@ -716,7 +804,7 @@ type ResultsValue struct {
 }
 
 func (v ResultsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 11)
+	attrTypes := make(map[string]tftypes.Type, 13)
 
 	var val tftypes.Value
 	var err error
@@ -729,6 +817,8 @@ func (v ResultsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	attrTypes["dry_run"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["last_change_timestamp"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["pipeline_runner_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["pipeline_runner_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["state"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["success"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["username"] = basetypes.StringType{}.TerraformType(ctx)
@@ -737,7 +827,7 @@ func (v ResultsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 11)
+		vals := make(map[string]tftypes.Value, 13)
 
 		val, err = v.BundledTransactionId.ToTerraformValue(ctx)
 
@@ -803,6 +893,22 @@ func (v ResultsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 		vals["last_change_timestamp"] = val
 
+		val, err = v.PipelineRunnerId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["pipeline_runner_id"] = val
+
+		val, err = v.PipelineRunnerName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["pipeline_runner_name"] = val
+
 		val, err = v.State.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -865,6 +971,8 @@ func (v ResultsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		"dry_run":                basetypes.BoolType{},
 		"id":                     basetypes.Int64Type{},
 		"last_change_timestamp":  basetypes.StringType{},
+		"pipeline_runner_id":     basetypes.Int64Type{},
+		"pipeline_runner_name":   basetypes.StringType{},
 		"state":                  basetypes.StringType{},
 		"success":                basetypes.BoolType{},
 		"username":               basetypes.StringType{},
@@ -889,6 +997,8 @@ func (v ResultsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"dry_run":                v.DryRun,
 			"id":                     v.Id,
 			"last_change_timestamp":  v.LastChangeTimestamp,
+			"pipeline_runner_id":     v.PipelineRunnerId,
+			"pipeline_runner_name":   v.PipelineRunnerName,
 			"state":                  v.State,
 			"success":                v.Success,
 			"username":               v.Username,
@@ -944,6 +1054,14 @@ func (v ResultsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.PipelineRunnerId.Equal(other.PipelineRunnerId) {
+		return false
+	}
+
+	if !v.PipelineRunnerName.Equal(other.PipelineRunnerName) {
+		return false
+	}
+
 	if !v.State.Equal(other.State) {
 		return false
 	}
@@ -977,6 +1095,8 @@ func (v ResultsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"dry_run":                basetypes.BoolType{},
 		"id":                     basetypes.Int64Type{},
 		"last_change_timestamp":  basetypes.StringType{},
+		"pipeline_runner_id":     basetypes.Int64Type{},
+		"pipeline_runner_name":   basetypes.StringType{},
 		"state":                  basetypes.StringType{},
 		"success":                basetypes.BoolType{},
 		"username":               basetypes.StringType{},

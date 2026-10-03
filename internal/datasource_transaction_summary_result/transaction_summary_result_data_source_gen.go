@@ -14,8 +14,8 @@ func TransactionSummaryResultDataSourceSchema(ctx context.Context) schema.Schema
 		Attributes: map[string]schema.Attribute{
 			"bundled_transaction_id": schema.Int64Attribute{
 				Computed:            true,
-				Description:         "If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier.",
-				MarkdownDescription: "If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier.",
+				Description:         "If present, indicates that the execution of this transaction was bundled into the transaction with this identifier.",
+				MarkdownDescription: "If present, indicates that the execution of this transaction was bundled into the transaction with this identifier.",
 			},
 			"commit_hash": schema.StringAttribute{
 				Computed:            true,
@@ -52,6 +52,16 @@ func TransactionSummaryResultDataSourceSchema(ctx context.Context) schema.Schema
 				Computed:            true,
 				Description:         "The time that the transaction completed.",
 				MarkdownDescription: "The time that the transaction completed.",
+			},
+			"pipeline_runner_id": schema.Int64Attribute{
+				Computed:            true,
+				Description:         "If present, indicates the id of the pipeline runner associated with this transaction.",
+				MarkdownDescription: "If present, indicates the id of the pipeline runner associated with this transaction.",
+			},
+			"pipeline_runner_name": schema.StringAttribute{
+				Computed:            true,
+				Description:         "If present, indicates the name of the pipeline runner associated with this transaction.",
+				MarkdownDescription: "If present, indicates the name of the pipeline runner associated with this transaction.",
 			},
 			"state": schema.StringAttribute{
 				Computed:            true,
@@ -92,6 +102,8 @@ type TransactionSummaryResultModel struct {
 	DryRun               types.Bool   `tfsdk:"dry_run"`
 	Id                   types.Int64  `tfsdk:"id"`
 	LastChangeTimestamp  types.String `tfsdk:"last_change_timestamp"`
+	PipelineRunnerId     types.Int64  `tfsdk:"pipeline_runner_id"`
+	PipelineRunnerName   types.String `tfsdk:"pipeline_runner_name"`
 	State                types.String `tfsdk:"state"`
 	Success              types.Bool   `tfsdk:"success"`
 	TransactionId        types.Int64  `tfsdk:"transaction_id"`

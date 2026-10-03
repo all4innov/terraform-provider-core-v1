@@ -8,36 +8,36 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/nokia/eda/apps/terraform-provider-core/internal/datasource_db_get_result"
+	"github.com/nokia/eda/apps/terraform-provider-core/internal/datasource_group_language_files"
 	"github.com/nokia/eda/apps/terraform-provider-core/internal/eda/apiclient"
 	"github.com/nokia/eda/apps/terraform-provider-core/internal/tfutils"
 )
 
-const read_ds_dbGetResult = "/core/db/v2/data"
+const read_ds_groupLanguageFiles = "/core/i18n/v1/{group}"
 
 var (
-	_ datasource.DataSource              = (*dbGetResultDataSource)(nil)
-	_ datasource.DataSourceWithConfigure = (*dbGetResultDataSource)(nil)
+	_ datasource.DataSource              = (*groupLanguageFilesDataSource)(nil)
+	_ datasource.DataSourceWithConfigure = (*groupLanguageFilesDataSource)(nil)
 )
 
-func NewDbGetResultDataSource() datasource.DataSource {
-	return &dbGetResultDataSource{}
+func NewGroupLanguageFilesDataSource() datasource.DataSource {
+	return &groupLanguageFilesDataSource{}
 }
 
-type dbGetResultDataSource struct {
+type groupLanguageFilesDataSource struct {
 	client *apiclient.EdaApiClient
 }
 
-func (d *dbGetResultDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_db_get_result"
+func (d *groupLanguageFilesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_group_language_files"
 }
 
-func (d *dbGetResultDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_db_get_result.DbGetResultDataSourceSchema(ctx)
+func (d *groupLanguageFilesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = datasource_group_language_files.GroupLanguageFilesDataSourceSchema(ctx)
 }
 
-func (d *dbGetResultDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data datasource_db_get_result.DbGetResultModel
+func (d *groupLanguageFilesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data datasource_group_language_files.GroupLanguageFilesModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -55,17 +55,19 @@ func (d *dbGetResultDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	// Read API call logic
 	tflog.Info(ctx, "Read()::API request", map[string]any{
-		"path":  read_ds_dbGetResult,
+		"path":  read_ds_groupLanguageFiles,
 		"data":  spew.Sdump(data),
 		"query": queryParams,
 	})
 
 	t0 := time.Now()
 	result := map[string]any{}
-	err = d.client.GetByQuery(ctx, read_ds_dbGetResult, nil, queryParams, &result)
+	err = d.client.GetByQuery(ctx, read_ds_groupLanguageFiles, map[string]string{
+		"group": tfutils.StringValue(data.Group),
+	}, queryParams, &result)
 
 	tflog.Info(ctx, "Read()::API returned", map[string]any{
-		"path":      read_ds_dbGetResult,
+		"path":      read_ds_groupLanguageFiles,
 		"result":    spew.Sdump(result),
 		"timeTaken": time.Since(t0).String(),
 	})
@@ -87,7 +89,7 @@ func (d *dbGetResultDataSource) Read(ctx context.Context, req datasource.ReadReq
 }
 
 // Configure adds the provider configured client to the data source.
-func (r *dbGetResultDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (r *groupLanguageFilesDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Add a nil check when handling ProviderData because Terraform
 	// sets that data after it calls the ConfigureProvider RPC.
 	if req.ProviderData == nil {

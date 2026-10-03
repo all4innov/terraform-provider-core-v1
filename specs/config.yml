@@ -32,6 +32,11 @@ data_sources:
       path: /core/alarm/v2/alarms/{alarm-name}/history
       method: GET
 
+  all_languages_response:
+    read:
+      path: /core/i18n/v1
+      method: GET
+
   auth_password_policy:
     read:
       path: /core/admin/passwordpolicy
@@ -67,6 +72,25 @@ data_sources:
       path: /core/admin/roles
       method: GET
 
+  auth_service_account_client:
+    read:
+      path: /core/admin/clients/{uuid}
+      method: GET
+    # "fullRoles" is a boolean query param and an array of roles in the response
+    # body. The generator merges same-named params and body properties into a
+    # single attribute and silently drops one of them when the types differ, so
+    # the param is renamed here to keep both. Every alias added here also needs a
+    # queryParamNames entry in tfutils so the API still gets "fullRoles".
+    schema:
+      attributes:
+        aliases:
+          fullRoles: include_full_roles
+
+  auth_service_account_clients:
+    read:
+      path: /core/admin/clients
+      method: GET
+
   auth_sessions:
     read:
       path: "/core/admin/sessions"
@@ -86,11 +110,47 @@ data_sources:
     read:
       path: "/core/admin/groups/{uuid}"
       method: GET
+    # See the note on auth_service_account_client above. "full-users" is the
+    # deprecated spelling of "fullUsers" and collides the same way, against the
+    # equally deprecated "full-users" response property.
+    #
+    # The generator carries a deprecation message over from a schema property but
+    # not from a parameter, so the deprecated params say so in their description
+    # instead. The API descriptions have their replacements crossed ("full-roles"
+    # says to use "fullUsers") and name query params rather than attributes, so
+    # they are restated below in terms of this schema.
+    schema:
+      attributes:
+        aliases:
+          fullRoles: include_full_roles
+          fullUsers: include_full_users
+          full-users: include_fullusers
+          full-roles: fullroles
+        overrides:
+          fullroles:
+            description: 'Deprecated: use "include_full_roles" instead, which takes precedence when both are set. If true, "full_roles" holds the full definitions of the roles associated with the group rather than just the role names.'
+          include_fullusers:
+            description: 'Deprecated: use "include_full_users" instead, which takes precedence when both are set. If true, "full_users" holds the full definitions of the users who are members of the group rather than just the user names.'
 
   auth_user_groups:
     read:
       path: /core/admin/groups
       method: GET
+    # As on auth_user_group, except that nothing collides here: the response is a
+    # collection, so the role and user arrays sit inside each group rather than
+    # beside the params, and the current params keep their own names. The two
+    # aliases are the no-op kind described above, only there to make the
+    # deprecated params addressable as overrides.
+    schema:
+      attributes:
+        aliases:
+          full-roles: fullroles
+          full-users: fullusers
+        overrides:
+          fullroles:
+            description: 'Deprecated: use "full_roles" instead, which takes precedence when both are set. If true, each group holds the full definitions of its associated roles rather than just the role names.'
+          fullusers:
+            description: 'Deprecated: use "full_users" instead, which takes precedence when both are set. If true, each group holds the full definitions of its members rather than just the user names.'
 
   conversation_history:
     read:
@@ -117,16 +177,21 @@ data_sources:
       path: /core/chat/v1/chats
       method: GET
 
-  db_get_result:
+  feature_status:
     read:
-      path: /core/db/v2/data
+      path: /core/features/v1/{featureName}
       method: GET
 
-  db_get_schema:
+  feature_status_list:
     read:
-      path: /core/db/v2/schema
+      path: /core/features/v1
       method: GET
 
+  group_language_files:
+    read:
+      path: /core/i18n/v1/{group}
+      method: GET
+      
   group_roles:
     read:
       path: /core/admin/groups/{uuid}/roles
@@ -142,6 +207,11 @@ data_sources:
       path: /core/about/health
       method: GET
   
+  language_file:
+    read:
+      path: /core/i18n/v1/{group}/{language}
+      method: GET
+
   merge_request:
     read:
       path: /core/mergerequest/v1/{mergeRequestId}
@@ -397,6 +467,22 @@ resources:
     delete:
       path: /core/admin/groups/{uuid}
       method: DELETE
+    # Here the read params collide with the create request body instead of the
+    # response, but the outcome is the same. Aliases apply to read params only,
+    # so the body properties keep their original names.
+    schema:
+      attributes:
+        aliases:
+          fullRoles: include_full_roles
+          fullUsers: include_full_users
+          full-users: include_fullusers
+          # No-op alias, as on the data source.
+          full-roles: fullroles
+        overrides:
+          fullroles:
+            description: 'Deprecated: use "include_full_roles" instead, which takes precedence when both are set. If true, "full_roles" holds the full definitions of the roles associated with the group rather than just the role names.'
+          include_fullusers:
+            description: 'Deprecated: use "include_full_users" instead, which takes precedence when both are set. If true, "full_users" holds the full definitions of the users who are members of the group rather than just the user names.'
 
   merge_request:
     create:

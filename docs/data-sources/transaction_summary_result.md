@@ -25,7 +25,7 @@ description: |-
 
 ### Read-Only
 
-- `bundled_transaction_id` (Number) If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier.
+- `bundled_transaction_id` (Number) If present, indicates that the execution of this transaction was bundled into the transaction with this identifier.
 - `commit_hash` (String) The git commit hash for the transaction
 - `description` (String) The description of the transaction, as posted in the transaction request.
 - `detail_level` (String) The level of detail available in the transaction details.
@@ -34,6 +34,8 @@ Deprecated: use "detailLevel" instead.
 - `dry_run` (Boolean) If true the transaction was not committed and ran in dry run mode.
 - `id` (Number) The transaction identifier
 - `last_change_timestamp` (String) The time that the transaction completed.
+- `pipeline_runner_id` (Number) If present, indicates the id of the pipeline runner associated with this transaction.
+- `pipeline_runner_name` (String) If present, indicates the name of the pipeline runner associated with this transaction.
 - `state` (String) The state of the transaction.
 - `success` (Boolean) True if the transaction was successful.
 - `username` (String) The user who posted the transaction.

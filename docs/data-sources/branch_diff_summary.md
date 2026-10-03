@@ -17,10 +17,10 @@ description: |-
 
 ### Optional
 
-- `cursor` (Number) When gvk is set with limit: offset into that category's names; omit for first page. Ignored when gvk is omitted.
-- `gvk` (String) When set, returns only a single category for that GVK. Must be valid JSON for GroupVersionKind (URL-encoded). Omit to return all categories.
-- `limit` (Number) Max names per category per page. Omit or 0: return all names (no pagination). Max 1000.
-- `search` (String) Filter names by case-insensitive substring match on name, namespace, or "name (namespace)" display.
+- `cursor` (Number) When gvk is set: offset into that category's (filtered) names; omit for first page. Ignored when gvk is not set.
+- `gvk` (String) When set, returns only a single category (combined list for all namespaces) for that GVK. Must be valid JSON for GroupVersionKind with non-empty group, version, and kind (URL-encoded in the request). Omit to return all categories. Ex: '{"group":"core.eda.nokia.com","version":"v1","kind":"Node"}'.
+- `limit` (Number) Max names per category per page. When gvk is absent: each category returns up to this many names (first page); when gvk is set: page size for that category. Omit or 0: return all names (no pagination). Max 1000.
+- `search` (String) If the query matches the category kind or the UI name of a CRD component from an app manifest, the full category is returned (subject to limit). Otherwise filters by case-insensitive substring on CR name, namespace, or "name (namespace)" display. When used with limit, pagination applies to the resulting list per category.
 
 ### Read-Only
 

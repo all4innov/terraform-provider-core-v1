@@ -47,10 +47,14 @@ func ConversationHistoryDataSourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"role": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "The sender of this message",
+							MarkdownDescription: "The sender of this message",
 						},
-						"type": schema.Int64Attribute{
-							Computed: true,
+						"type": schema.StringAttribute{
+							Computed:            true,
+							Description:         "Indicates the type of content included in this message",
+							MarkdownDescription: "Indicates the type of content included in this message",
 						},
 						"value": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{},
@@ -146,12 +150,12 @@ func (t MessagesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	typeVal, ok := typeAttribute.(basetypes.Int64Value)
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`type expected to be basetypes.Int64Value, was: %T`, typeAttribute))
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
 	}
 
 	valueAttribute, ok := attributes["value"]
@@ -275,12 +279,12 @@ func NewMessagesValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewMessagesValueUnknown(), diags
 	}
 
-	typeVal, ok := typeAttribute.(basetypes.Int64Value)
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`type expected to be basetypes.Int64Value, was: %T`, typeAttribute))
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
 	}
 
 	valueAttribute, ok := attributes["value"]
@@ -382,7 +386,7 @@ var _ basetypes.ObjectValuable = MessagesValue{}
 
 type MessagesValue struct {
 	Role         basetypes.StringValue `tfsdk:"role"`
-	MessagesType basetypes.Int64Value  `tfsdk:"type"`
+	MessagesType basetypes.StringValue `tfsdk:"type"`
 	Value        basetypes.ObjectValue `tfsdk:"value"`
 	state        attr.ValueState
 }
@@ -394,7 +398,7 @@ func (v MessagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	var err error
 
 	attrTypes["role"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["type"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["value"] = basetypes.ObjectType{
 		AttrTypes: ValueValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -481,7 +485,7 @@ func (v MessagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 
 	attributeTypes := map[string]attr.Type{
 		"role": basetypes.StringType{},
-		"type": basetypes.Int64Type{},
+		"type": basetypes.StringType{},
 		"value": basetypes.ObjectType{
 			AttrTypes: ValueValue{}.AttributeTypes(ctx),
 		},
@@ -547,7 +551,7 @@ func (v MessagesValue) Type(ctx context.Context) attr.Type {
 func (v MessagesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"role": basetypes.StringType{},
-		"type": basetypes.Int64Type{},
+		"type": basetypes.StringType{},
 		"value": basetypes.ObjectType{
 			AttrTypes: ValueValue{}.AttributeTypes(ctx),
 		},

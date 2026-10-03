@@ -5,6 +5,12 @@ datasources:
   - model_name: namespaces
     oas_endpoint: /core/access/v1/namespaces
     oas_schema: NamespaceGetResponse
+  - model_name: auth_service_account_clients
+    oas_endpoint: /core/admin/clients
+    oas_schema: AuthServiceAccountClients
+  - model_name: auth_service_account_client
+    oas_endpoint: /core/admin/clients/{uuid}
+    oas_schema: AuthServiceAccountClient
   - model_name: auth_providers
     oas_endpoint: /core/admin/federationproviders
     oas_schema: AuthProviders
@@ -80,12 +86,21 @@ datasources:
   - model_name: conversation_history
     oas_endpoint: /core/chat/v1/chats/{chatId}
     oas_schema: ConversationHistory
-  - model_name: db_get_result
-    oas_endpoint: /core/db/v2/data
-    oas_schema: dbGetResult
-  - model_name: db_get_schema
-    oas_endpoint: /core/db/v2/schema
-    oas_schema: dbGetResult
+  - model_name: feature_status_list
+    oas_endpoint: /core/features/v1
+    oas_schema: FeatureStatusList
+  - model_name: feature_status
+    oas_endpoint: /core/features/v1/{featureName}
+    oas_schema: FeatureStatus
+  - model_name: all_languages_response
+    oas_endpoint: /core/i18n/v1
+    oas_schema: AllLanguagesResponse
+  - model_name: group_language_files
+    oas_endpoint: /core/i18n/v1/{group}
+    oas_schema: GroupLanguageFiles
+  - model_name: language_file
+    oas_endpoint: /core/i18n/v1/{group}/{language}
+    oas_schema: LanguageFile
   - model_name: merge_request
     oas_endpoint: /core/mergerequest/v1/{mergeRequestId}
     oas_schema: mergeRequest
@@ -217,6 +232,8 @@ resources:
 
 qualified:
   datasources:
+    - oas_schema: dbGetResult
+      get: /core/db/v2/data
     - oas_schema: versionInfo
       get: /core/about/version
   resources:

@@ -31,6 +31,7 @@ description: |-
 - `general_errors` (List of String) List of general errors while running the transaction
 - `intents_run` (Attributes List) List of intents which ran as part of the transaction (see [below for nested schema](#nestedatt--intents_run))
 - `nodes_with_config_changes` (Attributes List) List of nodes with configuration changes from the transaction (see [below for nested schema](#nestedatt--nodes_with_config_changes))
+- `pipeline_runner_id` (Number) If present, indicates the id of the pipeline runner associated with this transaction.
 - `topology_supported` (Boolean) Whether a topology representation of this transaction is supported
 
 <a id="nestedatt--changed_crs"></a>
@@ -102,7 +103,7 @@ If set, this index indicates to which array item the error applies.
 This may be used (along with the domain) to find an internationalization translation for the message.
 
 SHOULD be a valid golang identifier, and SHOULD be in UpperCamelCase.
-- `values` (Attributes Map) Associated data/information.
+- `values` (Attributes) Associated data/information.
 The error "message" may contain {{name}} escapes that should be substituted with information from this dictionary.
 
 Note that this map MUST NOT contain JSON objects (`{...}`) or arrays (`[...]`), only simple JSON types are permitted. (see [below for nested schema](#nestedatt--intents_run--errors--error--values))

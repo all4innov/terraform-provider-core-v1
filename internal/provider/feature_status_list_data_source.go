@@ -8,36 +8,36 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/nokia/eda/apps/terraform-provider-core/internal/datasource_db_get_schema"
+	"github.com/nokia/eda/apps/terraform-provider-core/internal/datasource_feature_status_list"
 	"github.com/nokia/eda/apps/terraform-provider-core/internal/eda/apiclient"
 	"github.com/nokia/eda/apps/terraform-provider-core/internal/tfutils"
 )
 
-const read_ds_dbGetSchema = "/core/db/v2/schema"
+const read_ds_featureStatusList = "/core/features/v1"
 
 var (
-	_ datasource.DataSource              = (*dbGetSchemaDataSource)(nil)
-	_ datasource.DataSourceWithConfigure = (*dbGetSchemaDataSource)(nil)
+	_ datasource.DataSource              = (*featureStatusListDataSource)(nil)
+	_ datasource.DataSourceWithConfigure = (*featureStatusListDataSource)(nil)
 )
 
-func NewDbGetSchemaDataSource() datasource.DataSource {
-	return &dbGetSchemaDataSource{}
+func NewFeatureStatusListDataSource() datasource.DataSource {
+	return &featureStatusListDataSource{}
 }
 
-type dbGetSchemaDataSource struct {
+type featureStatusListDataSource struct {
 	client *apiclient.EdaApiClient
 }
 
-func (d *dbGetSchemaDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_db_get_schema"
+func (d *featureStatusListDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_feature_status_list"
 }
 
-func (d *dbGetSchemaDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_db_get_schema.DbGetSchemaDataSourceSchema(ctx)
+func (d *featureStatusListDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = datasource_feature_status_list.FeatureStatusListDataSourceSchema(ctx)
 }
 
-func (d *dbGetSchemaDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data datasource_db_get_schema.DbGetSchemaModel
+func (d *featureStatusListDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data datasource_feature_status_list.FeatureStatusListModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -55,17 +55,17 @@ func (d *dbGetSchemaDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	// Read API call logic
 	tflog.Info(ctx, "Read()::API request", map[string]any{
-		"path":  read_ds_dbGetSchema,
+		"path":  read_ds_featureStatusList,
 		"data":  spew.Sdump(data),
 		"query": queryParams,
 	})
 
 	t0 := time.Now()
-	result := map[string]any{}
-	err = d.client.GetByQuery(ctx, read_ds_dbGetSchema, nil, queryParams, &result)
+	result := []any{}
+	err = d.client.GetByQuery(ctx, read_ds_featureStatusList, nil, queryParams, &result)
 
 	tflog.Info(ctx, "Read()::API returned", map[string]any{
-		"path":      read_ds_dbGetSchema,
+		"path":      read_ds_featureStatusList,
 		"result":    spew.Sdump(result),
 		"timeTaken": time.Since(t0).String(),
 	})
@@ -75,8 +75,12 @@ func (d *dbGetSchemaDataSource) Read(ctx context.Context, req datasource.ReadReq
 		return
 	}
 
+	newResult := map[string]any{
+		"featureStatusList": result,
+	}
+
 	// Convert API response to Terraform model
-	err = tfutils.AnyMapToModel(ctx, result, &data)
+	err = tfutils.AnyMapToModel(ctx, newResult, &data)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to build response from API result", err.Error())
 		return
@@ -87,7 +91,7 @@ func (d *dbGetSchemaDataSource) Read(ctx context.Context, req datasource.ReadReq
 }
 
 // Configure adds the provider configured client to the data source.
-func (r *dbGetSchemaDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (r *featureStatusListDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Add a nil check when handling ProviderData because Terraform
 	// sets that data after it calls the ConfigureProvider RPC.
 	if req.ProviderData == nil {

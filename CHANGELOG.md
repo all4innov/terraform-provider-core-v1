@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.0
+
+Initial release of 26.8 support.
+
+## 1.2.0
+
+Added data sources and resources for the 26.4 release.
+
+## 1.1.0
+
+Initial release of 26.4 support.
+
 ## 1.0.2
 
 - Deprecate the `full-roles` parameter for the `groups` module and introduce the `fullRoles` parameter instead.

@@ -49,8 +49,8 @@ func ClusterAlarmsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"cluster_member": schema.StringAttribute{
 							Computed:            true,
-							Description:         "The cluster member that generated this alarm.  Use clusterName instead.\nDeprecated: true",
-							MarkdownDescription: "The cluster member that generated this alarm.  Use clusterName instead.\nDeprecated: true",
+							Description:         "Deprecated: Use clusterName instead.",
+							MarkdownDescription: "Deprecated: Use clusterName instead.",
 							DeprecationMessage:  "This attribute is deprecated.",
 						},
 						"cluster_name": schema.StringAttribute{

@@ -32,4 +32,6 @@ description: |-
 - `intents_run_count` (Number) Count of intents which ran as part of the transaction
 - `nodes_with_config_changes_count` (Number) List of nodes with configuration changes from the transaction
 - `output_crs_count` (Number) Count of output resoures as part of the transaction
+- `pipeline_runner_id` (Number) If present, indicates the id of the pipeline runner associated with this transaction.
+- `pipeline_runner_name` (String) If present, indicates the name of the pipeline runner associated with this transaction.
 - `topology_supported` (Boolean) Whether a topology representation of this transaction is supported

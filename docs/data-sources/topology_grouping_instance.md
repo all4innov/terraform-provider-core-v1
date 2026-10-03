@@ -20,20 +20,13 @@ description: |-
 - `grouping_name` (String) the name of the grouping to retrieve
 - `topology_name` (String) the name of the topology whose grouping(s) should be retrieved
 
-### Optional
-
-- `spec` (Attributes Map) (see [below for nested schema](#nestedatt--spec))
-
 ### Read-Only
 
 - `api_version` (String) The group/version for the topology grouping data.
 - `kind` (String) The kind for the topology grouping data.
 - `metadata` (Attributes) The metadata kind for the topology grouping data. (see [below for nested schema](#nestedatt--metadata))
+- `spec` (Attributes Map) (see [below for nested schema](#nestedatt--spec))
 - `status` (Attributes Map) (see [below for nested schema](#nestedatt--status))
-
-<a id="nestedatt--spec"></a>
-### Nested Schema for `spec`
-
 
 <a id="nestedatt--metadata"></a>
 ### Nested Schema for `metadata`
@@ -44,6 +37,10 @@ Read-Only:
 - `labels` (Map of String)
 - `name` (String)
 - `namespace` (String)
+
+
+<a id="nestedatt--spec"></a>
+### Nested Schema for `spec`
 
 
 <a id="nestedatt--status"></a>

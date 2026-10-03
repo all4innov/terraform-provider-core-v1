@@ -39,6 +39,7 @@ Read-Only:
 - `name` (String)
 - `namespace` (String)
 - `parent` (Attributes) (see [below for nested schema](#nestedatt--workflow_status_summary--parent))
+- `passed` (Boolean)
 - `root_workflow` (Attributes) (see [below for nested schema](#nestedatt--workflow_status_summary--root_workflow))
 - `state` (String)
 - `username` (String)

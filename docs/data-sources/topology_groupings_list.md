@@ -28,20 +28,13 @@ description: |-
 <a id="nestedatt--items"></a>
 ### Nested Schema for `items`
 
-Optional:
-
-- `spec` (Attributes Map) (see [below for nested schema](#nestedatt--items--spec))
-
 Read-Only:
 
 - `api_version` (String) The group/version for the topology grouping data.
 - `kind` (String) The kind for the topology grouping data.
 - `metadata` (Attributes) The metadata kind for the topology grouping data. (see [below for nested schema](#nestedatt--items--metadata))
+- `spec` (Attributes Map) (see [below for nested schema](#nestedatt--items--spec))
 - `status` (Attributes Map) (see [below for nested schema](#nestedatt--items--status))
-
-<a id="nestedatt--items--spec"></a>
-### Nested Schema for `items.spec`
-
 
 <a id="nestedatt--items--metadata"></a>
 ### Nested Schema for `items.metadata`
@@ -52,6 +45,10 @@ Read-Only:
 - `labels` (Map of String)
 - `name` (String)
 - `namespace` (String)
+
+
+<a id="nestedatt--items--spec"></a>
+### Nested Schema for `items.spec`
 
 
 <a id="nestedatt--items--status"></a>

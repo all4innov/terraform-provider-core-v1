@@ -49,6 +49,16 @@ func TransactionExecutionResultWithCountsDataSourceSchema(ctx context.Context) s
 				Description:         "Count of output resoures as part of the transaction",
 				MarkdownDescription: "Count of output resoures as part of the transaction",
 			},
+			"pipeline_runner_id": schema.Int64Attribute{
+				Computed:            true,
+				Description:         "If present, indicates the id of the pipeline runner associated with this transaction.",
+				MarkdownDescription: "If present, indicates the id of the pipeline runner associated with this transaction.",
+			},
+			"pipeline_runner_name": schema.StringAttribute{
+				Computed:            true,
+				Description:         "If present, indicates the name of the pipeline runner associated with this transaction.",
+				MarkdownDescription: "If present, indicates the name of the pipeline runner associated with this transaction.",
+			},
 			"topology_supported": schema.BoolAttribute{
 				Computed:            true,
 				Description:         "Whether a topology representation of this transaction is supported",
@@ -77,6 +87,8 @@ type TransactionExecutionResultWithCountsModel struct {
 	IntentsRunCount             types.Int64  `tfsdk:"intents_run_count"`
 	NodesWithConfigChangesCount types.Int64  `tfsdk:"nodes_with_config_changes_count"`
 	OutputCrsCount              types.Int64  `tfsdk:"output_crs_count"`
+	PipelineRunnerId            types.Int64  `tfsdk:"pipeline_runner_id"`
+	PipelineRunnerName          types.String `tfsdk:"pipeline_runner_name"`
 	TopologySupported           types.Bool   `tfsdk:"topology_supported"`
 	TransactionId               types.Int64  `tfsdk:"transaction_id"`
 	WaitForComplete             types.Bool   `tfsdk:"wait_for_complete"`

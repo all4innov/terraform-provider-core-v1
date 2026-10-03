@@ -159,13 +159,11 @@ func TransactionExecutionResultDataSourceSchema(ctx context.Context) schema.Sche
 												Description:         "Type defines a unique identifier for the error, within the domain.\nThis may be used (along with the domain) to find an internationalization translation for the message.\n\nSHOULD be a valid golang identifier, and SHOULD be in UpperCamelCase.",
 												MarkdownDescription: "Type defines a unique identifier for the error, within the domain.\nThis may be used (along with the domain) to find an internationalization translation for the message.\n\nSHOULD be a valid golang identifier, and SHOULD be in UpperCamelCase.",
 											},
-											"values": schema.MapNestedAttribute{
-												NestedObject: schema.NestedAttributeObject{
-													Attributes: map[string]schema.Attribute{},
-													CustomType: ValuesType{
-														ObjectType: types.ObjectType{
-															AttrTypes: ValuesValue{}.AttributeTypes(ctx),
-														},
+											"values": schema.SingleNestedAttribute{
+												Attributes: map[string]schema.Attribute{},
+												CustomType: ValuesType{
+													ObjectType: types.ObjectType{
+														AttrTypes: ValuesValue{}.AttributeTypes(ctx),
 													},
 												},
 												Computed:            true,
@@ -330,6 +328,11 @@ func TransactionExecutionResultDataSourceSchema(ctx context.Context) schema.Sche
 				Description:         "List of nodes with configuration changes from the transaction",
 				MarkdownDescription: "List of nodes with configuration changes from the transaction",
 			},
+			"pipeline_runner_id": schema.Int64Attribute{
+				Computed:            true,
+				Description:         "If present, indicates the id of the pipeline runner associated with this transaction.",
+				MarkdownDescription: "If present, indicates the id of the pipeline runner associated with this transaction.",
+			},
 			"topology_supported": schema.BoolAttribute{
 				Computed:            true,
 				Description:         "Whether a topology representation of this transaction is supported",
@@ -357,6 +360,7 @@ type TransactionExecutionResultModel struct {
 	GeneralErrors          types.List   `tfsdk:"general_errors"`
 	IntentsRun             types.List   `tfsdk:"intents_run"`
 	NodesWithConfigChanges types.List   `tfsdk:"nodes_with_config_changes"`
+	PipelineRunnerId       types.Int64  `tfsdk:"pipeline_runner_id"`
 	TopologySupported      types.Bool   `tfsdk:"topology_supported"`
 	TransactionId          types.Int64  `tfsdk:"transaction_id"`
 	WaitForComplete        types.Bool   `tfsdk:"wait_for_complete"`
@@ -2521,12 +2525,12 @@ func (t ErrorType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 		return nil, diags
 	}
 
-	valuesVal, ok := valuesAttribute.(basetypes.MapValue)
+	valuesVal, ok := valuesAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`values expected to be basetypes.MapValue, was: %T`, valuesAttribute))
+			fmt.Sprintf(`values expected to be basetypes.ObjectValue, was: %T`, valuesAttribute))
 	}
 
 	if diags.HasError() {
@@ -2802,12 +2806,12 @@ func NewErrorValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewErrorValueUnknown(), diags
 	}
 
-	valuesVal, ok := valuesAttribute.(basetypes.MapValue)
+	valuesVal, ok := valuesAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`values expected to be basetypes.MapValue, was: %T`, valuesAttribute))
+			fmt.Sprintf(`values expected to be basetypes.ObjectValue, was: %T`, valuesAttribute))
 	}
 
 	if diags.HasError() {
@@ -2908,7 +2912,7 @@ type ErrorValue struct {
 	Message                basetypes.StringValue `tfsdk:"message"`
 	Ref                    basetypes.StringValue `tfsdk:"ref"`
 	ErrorType              basetypes.StringValue `tfsdk:"type"`
-	Values                 basetypes.MapValue    `tfsdk:"values"`
+	Values                 basetypes.ObjectValue `tfsdk:"values"`
 	state                  attr.ValueState
 }
 
@@ -2934,8 +2938,8 @@ func (v ErrorValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	attrTypes["message"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ref"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["values"] = basetypes.MapType{
-		ElemType: ValuesValue{}.Type(ctx),
+	attrTypes["values"] = basetypes.ObjectType{
+		AttrTypes: ValuesValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -3140,32 +3144,24 @@ func (v ErrorValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		)
 	}
 
-	values := types.MapValueMust(
-		ValuesType{
-			basetypes.ObjectType{
-				AttrTypes: ValuesValue{}.AttributeTypes(ctx),
-			},
-		},
-		v.Values.Elements(),
-	)
+	var values basetypes.ObjectValue
 
 	if v.Values.IsNull() {
-		values = types.MapNull(
-			ValuesType{
-				basetypes.ObjectType{
-					AttrTypes: ValuesValue{}.AttributeTypes(ctx),
-				},
-			},
+		values = types.ObjectNull(
+			ValuesValue{}.AttributeTypes(ctx),
 		)
 	}
 
 	if v.Values.IsUnknown() {
-		values = types.MapUnknown(
-			ValuesType{
-				basetypes.ObjectType{
-					AttrTypes: ValuesValue{}.AttributeTypes(ctx),
-				},
-			},
+		values = types.ObjectUnknown(
+			ValuesValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Values.IsNull() && !v.Values.IsUnknown() {
+		values = types.ObjectValueMust(
+			ValuesValue{}.AttributeTypes(ctx),
+			v.Values.Attributes(),
 		)
 	}
 
@@ -3186,8 +3182,8 @@ func (v ErrorValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		"message": basetypes.StringType{},
 		"ref":     basetypes.StringType{},
 		"type":    basetypes.StringType{},
-		"values": basetypes.MapType{
-			ElemType: ValuesValue{}.Type(ctx),
+		"values": basetypes.ObjectType{
+			AttrTypes: ValuesValue{}.AttributeTypes(ctx),
 		},
 	}
 
@@ -3306,8 +3302,8 @@ func (v ErrorValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"message": basetypes.StringType{},
 		"ref":     basetypes.StringType{},
 		"type":    basetypes.StringType{},
-		"values": basetypes.MapType{
-			ElemType: ValuesValue{}.Type(ctx),
+		"values": basetypes.ObjectType{
+			AttrTypes: ValuesValue{}.AttributeTypes(ctx),
 		},
 	}
 }

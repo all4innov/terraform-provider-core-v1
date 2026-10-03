@@ -19,7 +19,7 @@ description: |-
 
 - `namespace` (String) Namespace of the node for the configuration diff being requested.
 - `node` (String) Name of the node for the configuration diff being requested
-- `transaction_id` (Number) The identifier for the transaction whose resource diff is being requested
+- `transaction_id` (Number) The identifier for the transaction whose node configuration diff is being requested
 
 ### Read-Only
 

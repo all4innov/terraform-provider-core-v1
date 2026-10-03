@@ -28,6 +28,10 @@ description: |-
 
 Read-Only:
 
+- `core_access_items` (List of String) Core items to which this role gives access; arbitrary things/actions that do not match the "resource" or "table" paradigm.
+Each item must have a resource/subResource/verb structure, where /subResource is optional (depends on the resource).
+The leading or trailing part part may be wildcarded with '\*'.  A wildcard is recursive; i.e. if a subResource is a wildcard, the verb is wildcarded.
+A simple '\*' provides access to all of these resources or items.
 - `description` (String)
 - `name` (String)
 - `namespace` (String)
@@ -41,7 +45,7 @@ Read-Only:
 Read-Only:
 
 - `api_groups` (List of String) The API groups for the resources controlled by the rule.
-An API group consists of an apiGroup and a version, e.g. "apigroup/version".
+Accepted forms: "*" (all groups), "group" (all versions), "group/*" (all versions), "group/version".
 The API group can be a wildcard ("*"), in which case it will match any API group.
 In addition, the version can be a wildcard.
 - `permissions` (String) Permissions for resources specified by the rule.

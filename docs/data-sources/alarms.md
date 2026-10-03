@@ -39,8 +39,7 @@ Read-Only:
 - `acknowledged_until` (String) Indicates the end time of the acknowledgement.
 - `additional_text` (String) adds extra context related to the alarm
 - `cleared` (Boolean) An indication if the alarm has been cleared.
-- `cluster_member` (String, Deprecated) The cluster member that generated this alarm.  Use clusterName instead.
-Deprecated: true
+- `cluster_member` (String, Deprecated) Deprecated: Use clusterName instead.
 - `cluster_name` (String) The name of the cluster member which generated this alarm.
 - `description` (String) A description for the alarm.
 - `group` (String) Indicates the group of the resource the alarm is present on.

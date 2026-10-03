@@ -66,8 +66,8 @@ func TransactionNodeConfigDiffDataSourceSchema(ctx context.Context) schema.Schem
 			},
 			"transaction_id": schema.Int64Attribute{
 				Required:            true,
-				Description:         "The identifier for the transaction whose resource diff is being requested",
-				MarkdownDescription: "The identifier for the transaction whose resource diff is being requested",
+				Description:         "The identifier for the transaction whose node configuration diff is being requested",
+				MarkdownDescription: "The identifier for the transaction whose node configuration diff is being requested",
 			},
 		},
 	}

@@ -44,6 +44,7 @@ Read-Only:
 - `compatible` (Boolean) "true" if the application version is compatible with the current core version
 - `incompatibility_reason` (String) The reason why the application version is not compatible with the current core version
 - `published_time` (String) The date and time when the application version was published.
+- `signed` (Boolean) "true" if the app is signed.
 
 
 <a id="nestedatt--version"></a>

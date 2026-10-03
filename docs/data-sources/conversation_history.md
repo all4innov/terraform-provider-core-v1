@@ -33,8 +33,8 @@ description: |-
 
 Read-Only:
 
-- `role` (String)
-- `type` (Number)
+- `role` (String) The sender of this message
+- `type` (String) Indicates the type of content included in this message
 - `value` (Attributes) The content of the message returned from ai (see [below for nested schema](#nestedatt--messages--value))
 
 <a id="nestedatt--messages--value"></a>

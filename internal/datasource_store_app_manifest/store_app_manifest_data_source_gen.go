@@ -64,6 +64,11 @@ func StoreAppManifestDataSourceSchema(ctx context.Context) schema.Schema {
 						Description:         "The date and time when the application version was published.",
 						MarkdownDescription: "The date and time when the application version was published.",
 					},
+					"signed": schema.BoolAttribute{
+						Computed:            true,
+						Description:         "\"true\" if the app is signed.",
+						MarkdownDescription: "\"true\" if the app is signed.",
+					},
 				},
 				CustomType: MetadataType{
 					ObjectType: types.ObjectType{
@@ -463,6 +468,24 @@ func (t MetadataType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`published_time expected to be basetypes.StringValue, was: %T`, publishedTimeAttribute))
 	}
 
+	signedAttribute, ok := attributes["signed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`signed is missing from object`)
+
+		return nil, diags
+	}
+
+	signedVal, ok := signedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`signed expected to be basetypes.BoolValue, was: %T`, signedAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -471,6 +494,7 @@ func (t MetadataType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		Compatible:            compatibleVal,
 		IncompatibilityReason: incompatibilityReasonVal,
 		PublishedTime:         publishedTimeVal,
+		Signed:                signedVal,
 		state:                 attr.ValueStateKnown,
 	}, diags
 }
@@ -592,6 +616,24 @@ func NewMetadataValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`published_time expected to be basetypes.StringValue, was: %T`, publishedTimeAttribute))
 	}
 
+	signedAttribute, ok := attributes["signed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`signed is missing from object`)
+
+		return NewMetadataValueUnknown(), diags
+	}
+
+	signedVal, ok := signedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`signed expected to be basetypes.BoolValue, was: %T`, signedAttribute))
+	}
+
 	if diags.HasError() {
 		return NewMetadataValueUnknown(), diags
 	}
@@ -600,6 +642,7 @@ func NewMetadataValue(attributeTypes map[string]attr.Type, attributes map[string
 		Compatible:            compatibleVal,
 		IncompatibilityReason: incompatibilityReasonVal,
 		PublishedTime:         publishedTimeVal,
+		Signed:                signedVal,
 		state:                 attr.ValueStateKnown,
 	}, diags
 }
@@ -675,11 +718,12 @@ type MetadataValue struct {
 	Compatible            basetypes.BoolValue   `tfsdk:"compatible"`
 	IncompatibilityReason basetypes.StringValue `tfsdk:"incompatibility_reason"`
 	PublishedTime         basetypes.StringValue `tfsdk:"published_time"`
+	Signed                basetypes.BoolValue   `tfsdk:"signed"`
 	state                 attr.ValueState
 }
 
 func (v MetadataValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -687,12 +731,13 @@ func (v MetadataValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["compatible"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["incompatibility_reason"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["published_time"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["signed"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.Compatible.ToTerraformValue(ctx)
 
@@ -717,6 +762,14 @@ func (v MetadataValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["published_time"] = val
+
+		val, err = v.Signed.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["signed"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -751,6 +804,7 @@ func (v MetadataValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"compatible":             basetypes.BoolType{},
 		"incompatibility_reason": basetypes.StringType{},
 		"published_time":         basetypes.StringType{},
+		"signed":                 basetypes.BoolType{},
 	}
 
 	if v.IsNull() {
@@ -767,6 +821,7 @@ func (v MetadataValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"compatible":             v.Compatible,
 			"incompatibility_reason": v.IncompatibilityReason,
 			"published_time":         v.PublishedTime,
+			"signed":                 v.Signed,
 		})
 
 	return objVal, diags
@@ -799,6 +854,10 @@ func (v MetadataValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Signed.Equal(other.Signed) {
+		return false
+	}
+
 	return true
 }
 
@@ -815,6 +874,7 @@ func (v MetadataValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"compatible":             basetypes.BoolType{},
 		"incompatibility_reason": basetypes.StringType{},
 		"published_time":         basetypes.StringType{},
+		"signed":                 basetypes.BoolType{},
 	}
 }
 
